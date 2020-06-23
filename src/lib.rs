@@ -7,7 +7,18 @@ use std::default::Default;
 use std::fmt::{self, Debug, Formatter};
 use std::hash::{BuildHasher, Hash};
 
-/// A simple, generic symbol table
+/**
+A simple, generic symbol table.
+
+Behaves like a stack of `HashMap`s, where you can only insert symbols into the top map with `insert`. When a symbol is
+looked up with `get`, first the top map is checked, then the map under it, etc., with the first match found returned.
+This is implemented more efficiently using an `IndexMap`. `get_full` does the same, but returns the depth at which the
+symbol was found.
+
+You can push a new map onto the stack with `push`, and pop a map from the stack with `pop`, which will delete all entries
+at that level. `jump` pops multiple entries from the stack more efficiently than just `pop`: `popn` is an alternative
+syntax for `jump` in which you enter the number of layers to pop instead of the desired depth.
+*/
 #[derive(Clone, Eq, PartialEq)]
 pub struct SymbolTable<K: Hash + Eq, V, S: BuildHasher = RandomState> {
     symbols: IndexMap<K, Vec<(V, usize)>, S>,
@@ -76,7 +87,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
     }
     /// Register a given symbol at the current depth, returning the current definition at
     /// the current depth, if any.
-    pub fn def(&mut self, key: K, mut value: V) -> Option<V> {
+    pub fn insert(&mut self, key: K, mut value: V) -> Option<V> {
         let depth = self.depth();
         let entry = self.symbols.entry(key);
         let index = entry.index();
@@ -92,7 +103,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
         None
     }
     /// Try to register a given symbol at the current depth. Fail if the symbol is already defined
-    pub fn try_def(&mut self, key: K, value: V) -> Result<(), V> {
+    pub fn try_insert(&mut self, key: K, value: V) -> Result<(), V> {
         let depth = self.depth();
         let entry = self.symbols.entry(key);
         let index = entry.index();
@@ -163,7 +174,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
     /// Get the mutable definition of a current symbol, along with its depth, if any
     /// Jump to a given depth, removing obsolete definitions.
     /// Return the number of keys and definitions removed, as well as keys touched, if any.
-    pub fn jump_to_depth(&mut self, depth: usize) {
+    pub fn jump(&mut self, depth: usize) {
         let target = depth + 1;
         while target > self.scopes.len() {
             self.scopes.push(Vec::new());
@@ -180,12 +191,19 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
         }
     }
     /// Add a level of depth
+    #[inline]
     pub fn push(&mut self) {
-        self.jump_to_depth(self.depth() + 1);
+        self.jump(self.depth() + 1);
+    }
+    /// Pop up to `n` levels of depth.
+    #[inline]
+    pub fn popn(&mut self, n: usize) {
+        self.jump(self.depth().saturating_sub(n))
     }
     /// Try to remove a level of depth. Does nothing if depth  = 0
+    #[inline]
     pub fn pop(&mut self) {
-        self.jump_to_depth(self.depth().saturating_sub(1))
+        self.jump(self.depth().saturating_sub(1))
     }
     /// Check whether a symbol table is empty
     pub fn is_empty(&self) -> bool {
@@ -212,15 +230,15 @@ mod tests {
         assert!(symbols.is_empty());
         assert!(!symbols.contains_key("x"));
         assert!(!symbols.contains_key("y"));
-        symbols.def("x", 3);
+        symbols.insert("x", 3);
         assert!(symbols.contains_key("x"));
         assert!(!symbols.contains_key("y"));
-        symbols.def("y", 7);
+        symbols.insert("y", 7);
         assert!(symbols.contains_key("x"));
         assert!(symbols.contains_key("y"));
         symbols.push();
-        assert_eq!(symbols.def("x", 9), None);
-        assert_eq!(symbols.def("z", 1), None);
+        assert_eq!(symbols.insert("x", 9), None);
+        assert_eq!(symbols.insert("z", 1), None);
         assert_eq!(symbols.get_full("x"), Some((&9, 1)));
         assert_eq!(symbols.get_full("y"), Some((&7, 0)));
         assert_eq!(symbols.get_full("z"), Some((&1, 1)));
@@ -232,7 +250,7 @@ mod tests {
         assert_eq!(symbols.try_get_mut("z"), Some(&mut 1));
         assert!(symbols.contains_key("z"));
         assert!(symbols.contains_key("x"));
-        assert_eq!(symbols.def("z", 33), Some(1));
+        assert_eq!(symbols.insert("z", 33), Some(1));
         assert_eq!(symbols.get_full("x"), Some((&9, 1)));
         assert_eq!(symbols.get_full("y"), Some((&7, 0)));
         assert_eq!(symbols.get_full("z"), Some((&33, 1)));
