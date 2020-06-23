@@ -14,10 +14,6 @@ Behaves like a stack of `HashMap`s, where you can only insert symbols into the t
 looked up with `get`, first the top map is checked, then the map under it, etc., with the first match found returned.
 This is implemented more efficiently using an `IndexMap`. `get_full` does the same, but returns the depth at which the
 symbol was found.
-
-You can push a new map onto the stack with `push`, and pop a map from the stack with `pop`, which will delete all entries
-at that level. `jump` pops multiple entries from the stack more efficiently than just `pop`: `popn` is an alternative
-syntax for `jump` in which you enter the number of layers to pop instead of the desired depth.
 */
 #[derive(Clone, Eq, PartialEq)]
 pub struct SymbolTable<K: Hash + Eq, V, S: BuildHasher = RandomState> {
