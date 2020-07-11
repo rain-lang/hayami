@@ -114,14 +114,18 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
         Ok(())
     }
     /// Get the definition of a current symbol, along with its depth, if any
+    pub fn get_defs<Q>(&self, key: &Q) -> &[(V, usize)]
+    where
+        Q: ?Sized + Hash + Equivalent<K>,
+    {
+        self.symbols.get(key).map(|vec| &vec[..]).unwrap_or(&[])
+    }
+    /// Get the definition of a current symbol, along with its depth, if any
     pub fn get_full<Q>(&self, key: &Q) -> Option<(&V, usize)>
     where
         Q: ?Sized + Hash + Equivalent<K>,
     {
-        self.symbols
-            .get(key)
-            .map(|v| v.last().map(|(v, d)| (v, *d)))
-            .flatten()
+        self.get_defs(key).last().map(|(v, d)| (v, *d))
     }
     /// Get the definition of a symbol
     pub fn get<Q>(&self, key: &Q) -> Option<&V>
