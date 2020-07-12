@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use rand::{thread_rng, Rng};
 use hayami::SymbolTable;
-use ahash::HashMap;
+use ahash::AHashMap as HashMap;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = thread_rng();
