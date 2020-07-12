@@ -1,6 +1,6 @@
 [package]
 name = "hayami"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Jad Ghalayini <jad.ghalayini@hotmail.com>"]
 license = "MIT/Apache-2.0"
 edition = "2018"
