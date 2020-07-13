@@ -9,9 +9,6 @@ description = "A simple, general use symbol table."
 keywords = ["data-structure"]
 categories = ["data-structures"]
 
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 ahash = "^0.3"
 indexmap = "^1.3.2"
@@ -20,3 +17,8 @@ indexmap = "^1.3.2"
 pretty_assertions = "^0.6"
 rand = "^0.7"
 criterion = "^0.3"
+
+[[bench]]
+name = "basic"
+path = "benches/basic.rs"
+harness = false
