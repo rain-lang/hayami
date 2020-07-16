@@ -151,6 +151,18 @@ pub fn exercise_clone_symbol_table<S: SymbolMap<usize, Value=usize> + Clone>(lay
     exercise_symbol_push_1(layers, &mut table_4);
 }
 
+pub fn exercise_loop_symbol_table<S: SymbolMap<usize, Value=usize> + Clone>(layers: &Layers, table: &mut S) {
+    exercise_symbol_push_1(layers, table);
+    for _ in 0..10 {
+        let mut table2 = table.clone();
+        exercise_symbol_push_2(layers, &mut table2);
+        for _ in 0..10 {
+            let mut table3 = table.clone();
+            exercise_symbol_push_1(layers, &mut table3);
+        }
+    }
+}
+
 pub struct Layers {
     layer1: Vec<(usize, usize)>,
     layer2: Vec<(usize, usize)>,
@@ -207,6 +219,27 @@ pub fn layer_benchmarks(c: &mut Criterion) {
         b.iter(|| {
             let mut table = OldSymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Snap SymbolTable: clone loop usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            exercise_loop_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Local SymbolTable: clone loop usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            exercise_loop_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Old SymbolTable: clone loop usage test", |b| {
+        b.iter(|| {
+            let mut table = OldSymbolTable::<usize, usize>::default();
+            exercise_loop_symbol_table(&layers, &mut table);
             std::mem::drop(table)
         })
     });
