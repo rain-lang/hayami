@@ -152,18 +152,13 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
             .map(|v| v.last_mut().map(|(v, d)| (v, *d)))
             .flatten()
     }
-    /// Try to mutably get the definition of a current symbol at the current depth
-    pub fn try_get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
+    /// Try to mutably get the definition of a current symbol
+    pub fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut V>
     where
         Q: ?Sized + Hash + Equivalent<K>,
     {
-        let curr_depth = self.depth();
-        if let Some((value, depth)) = self.get_full_mut(key) {
-            if depth == curr_depth {
-                Some(value)
-            } else {
-                None
-            }
+        if let Some((value, _depth)) = self.get_full_mut(key) {
+            Some(value)
         } else {
             None
         }
@@ -237,36 +232,27 @@ mod tests {
         symbols.push();
         assert_eq!(symbols.insert("x", 9), None);
         assert_eq!(symbols.insert("z", 1), None);
-        assert_eq!(symbols.get_full("x"), Some((&9, 1)));
-        assert_eq!(symbols.get_full("y"), Some((&7, 0)));
-        assert_eq!(symbols.get_full("z"), Some((&1, 1)));
         assert_eq!(symbols.get("x"), Some(&9));
         assert_eq!(symbols.get("y"), Some(&7));
         assert_eq!(symbols.get("z"), Some(&1));
-        assert_eq!(symbols.try_get_mut("x"), Some(&mut 9));
-        assert_eq!(symbols.try_get_mut("y"), None);
-        assert_eq!(symbols.try_get_mut("z"), Some(&mut 1));
+        assert_eq!(symbols.get_mut("x"), Some(&mut 9));
+        assert_eq!(symbols.get_mut("y"), Some(&mut 7));
+        assert_eq!(symbols.get_mut("z"), Some(&mut 1));
         assert!(symbols.contains_key("z"));
         assert!(symbols.contains_key("x"));
         assert_eq!(symbols.insert("z", 33), Some(1));
-        assert_eq!(symbols.get_full("x"), Some((&9, 1)));
-        assert_eq!(symbols.get_full("y"), Some((&7, 0)));
-        assert_eq!(symbols.get_full("z"), Some((&33, 1)));
         assert_eq!(symbols.get("x"), Some(&9));
         assert_eq!(symbols.get("y"), Some(&7));
         assert_eq!(symbols.get("z"), Some(&33));
-        assert_eq!(symbols.try_get_mut("x"), Some(&mut 9));
-        assert_eq!(symbols.try_get_mut("y"), None);
-        assert_eq!(symbols.try_get_mut("z"), Some(&mut 33));
+        assert_eq!(symbols.get_mut("x"), Some(&mut 9));
+        assert_eq!(symbols.get_mut("y"), Some(&mut 7));
+        assert_eq!(symbols.get_mut("z"), Some(&mut 33));
         assert!(symbols.contains_key("z"));
         assert!(symbols.contains_key("x"));
         symbols.pop();
-        assert_eq!(symbols.get_full("x"), Some((&3, 0)));
-        assert_eq!(symbols.get_full("y"), Some((&7, 0)));
-        assert_eq!(symbols.get_full("z"), None);
-        assert_eq!(symbols.try_get_mut("x"), Some(&mut 3));
-        assert_eq!(symbols.try_get_mut("y"), Some(&mut 7));
-        assert_eq!(symbols.try_get_mut("z"), None);
+        assert_eq!(symbols.get_mut("x"), Some(&mut 3));
+        assert_eq!(symbols.get_mut("y"), Some(&mut 7));
+        assert_eq!(symbols.get_mut("z"), None);
         assert!(!symbols.contains_key("z"))
     }
 
