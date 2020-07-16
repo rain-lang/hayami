@@ -27,8 +27,7 @@ impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V,
     }
 }
 
-impl<K: Hash + Eq, V> SymbolTable<K, V>
-{
+impl<K: Hash + Eq, V> SymbolTable<K, V> {
     /// Create a new, empty symbol table
     pub fn new() -> SymbolTable<K, V> {
         Self::default()

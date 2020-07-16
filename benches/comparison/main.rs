@@ -1,15 +1,15 @@
 /*!
-Compare `SymbolTable` performance to other `HashMap`s 
+Compare `SymbolTable` performance to other `HashMap`s
 */
 
-use criterion::{criterion_group, criterion_main, Criterion, black_box};
-use rand::{thread_rng, Rng};
-use std::collections::HashMap;
 use ahash::RandomState;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use fxhash::FxHashMap;
-use indexmap::IndexMap;
 use im;
 use im_rc;
+use indexmap::IndexMap;
+use rand::{thread_rng, Rng};
+use std::collections::HashMap;
 
 pub mod old;
 use old::SymbolTable as OldSymbolTable;
@@ -20,64 +20,52 @@ pub fn insertion_benchmarks(c: &mut Criterion) {
     c.bench_function("im::HashMap: insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            im_table.insert(key, value)
-        })
+        b.iter(|| im_table.insert(key, value))
     });
     std::mem::drop(im_table);
     let mut im_rc_table = im_rc::HashMap::<usize, usize, RandomState>::default();
     c.bench_function("im_rc::HashMap: insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            im_rc_table.insert(key, value)
-        })
+        b.iter(|| im_rc_table.insert(key, value))
     });
     std::mem::drop(im_rc_table);
     let mut table = OldSymbolTable::<usize, usize>::new();
     c.bench_function("Old SymbolTable: level 0 insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            table.insert(key, value)
-        })
+        b.iter(|| table.insert(key, value))
     });
     std::mem::drop(table);
     let mut index_table = IndexMap::<usize, usize, RandomState>::default();
     c.bench_function("IndexMap: insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            index_table.insert(key, value)
-        })
+        b.iter(|| index_table.insert(key, value))
     });
     std::mem::drop(index_table);
     let mut hash_table = HashMap::<usize, usize, RandomState>::default();
     c.bench_function("HashMap: insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            hash_table.insert(key, value)
-        })
+        b.iter(|| hash_table.insert(key, value))
     });
     std::mem::drop(hash_table);
     let mut fxhash_table = FxHashMap::<usize, usize>::default();
     c.bench_function("FxHashMap: insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
-        b.iter(|| {
-            fxhash_table.insert(key, value)
-        })
+        b.iter(|| fxhash_table.insert(key, value))
     });
     std::mem::drop(fxhash_table);
 }
 
 pub fn layer_benchmarks(c: &mut Criterion) {
-    let layer1: Vec<(usize, usize)> = (0..10000).map(|u| (u, 2*u)).collect();
-    let layer2: Vec<(usize, usize)> = (250..750).map(|u| (u, 3*u)).collect();
-    let layer3: Vec<(usize, usize)> = (500..7000).map(|u| (u, 2*u)).collect();
+    let layer1: Vec<(usize, usize)> = (0..10000).map(|u| (u, 2 * u)).collect();
+    let layer2: Vec<(usize, usize)> = (250..750).map(|u| (u, 3 * u)).collect();
+    let layer3: Vec<(usize, usize)> = (500..7000).map(|u| (u, 2 * u)).collect();
     let layer2_2: Vec<(usize, usize)> = (100..9000).map(|u| (u, u)).collect();
-    let layer3_2: Vec<(usize, usize)> = (200..3000).map(|u| (u, 7*u)).collect();
+    let layer3_2: Vec<(usize, usize)> = (200..3000).map(|u| (u, 7 * u)).collect();
 
     c.bench_function("Old SymbolTable: basic usage test", |b| {
         b.iter(|| {
