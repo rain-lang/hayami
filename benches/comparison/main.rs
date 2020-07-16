@@ -2,7 +2,7 @@
 Compare `SymbolTable` performance to other `HashMap`s 
 */
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion, black_box};
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
 use ahash::RandomState;
@@ -14,7 +14,7 @@ use im_rc;
 pub mod old;
 use old::SymbolTable as OldSymbolTable;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
+pub fn insertion_benchmarks(c: &mut Criterion) {
     let mut rng = thread_rng();
     let mut im_table = im::HashMap::<usize, usize, RandomState>::default();
     c.bench_function("im::HashMap: insertion", |b| {
@@ -34,7 +34,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
     std::mem::drop(im_rc_table);
-    let mut table = OldSymbolTable::new();
+    let mut table = OldSymbolTable::<usize, usize>::new();
     c.bench_function("Old SymbolTable: level 0 insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
@@ -72,5 +72,75 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     std::mem::drop(fxhash_table);
 }
 
-criterion_group!(benches, criterion_benchmark);
+pub fn layer_benchmarks(c: &mut Criterion) {
+    let layer1: Vec<(usize, usize)> = (0..10000).map(|u| (u, 2*u)).collect();
+    let layer2: Vec<(usize, usize)> = (250..750).map(|u| (u, 3*u)).collect();
+    let layer3: Vec<(usize, usize)> = (500..7000).map(|u| (u, 2*u)).collect();
+    let layer2_2: Vec<(usize, usize)> = (100..9000).map(|u| (u, u)).collect();
+    let layer3_2: Vec<(usize, usize)> = (200..3000).map(|u| (u, 7*u)).collect();
+
+    c.bench_function("Old SymbolTable: basic usage test", |b| {
+        b.iter(|| {
+            let mut old_table = OldSymbolTable::<usize, usize>::default();
+            for item in layer1.iter() {
+                old_table.insert(item.0, item.1);
+            }
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.push();
+            for item in layer2.iter() {
+                old_table.insert(item.0, item.1);
+            }
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.push();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            for item in layer3.iter() {
+                old_table.insert(item.0, item.1);
+            }
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.pop();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.pop();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            for item in layer2_2.iter() {
+                old_table.insert(item.0, item.1);
+            }
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.push();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            for item in layer3_2.iter() {
+                old_table.insert(item.0, item.1);
+            }
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.pop();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            old_table.pop();
+            for i in 0..20000 {
+                black_box(old_table.get(&i));
+            }
+            std::mem::drop(old_table)
+        })
+    });
+}
+
+criterion_group!(benches, layer_benchmarks, insertion_benchmarks);
 criterion_main!(benches);

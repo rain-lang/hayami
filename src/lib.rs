@@ -1,3 +1,13 @@
 /*!
-A simple, general use symbol table, designed specifically for use in the implementation of the [`rain` language](https://gitlab.com/tekne/rain).
+Simple, general-use symbol table implementations with optional support for more advanced features
 */
+
+pub mod local;
+pub mod snap;
+
+/**
+A simple, general-use symbol table 
+*/
+pub struct SymbolTable {
+
+}
