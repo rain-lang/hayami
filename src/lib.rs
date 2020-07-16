@@ -2,11 +2,18 @@
 Simple, general-use symbol table implementations with optional support for more advanced features
 */
 use std::borrow::Borrow;
+use std::hash::{Hash, BuildHasher};
+use ahash;
 use elysees;
 
 pub mod fast;
 pub mod local;
 pub mod snap;
+
+/// The default random state in use
+/// 
+/// Supports `ahash` (default), or `std`
+type RandomState = ahash::RandomState;
 
 /// The `Arc` in use
 /// 
@@ -40,6 +47,8 @@ pub trait SymbolMap<K> {
     /// 
     /// Note that this is *not* guaranteed to drop all elements stored in the level!
     fn pop(&mut self);
+    /// Get the current depth of this symbol table
+    fn depth(&self) -> usize;
 }
 
 /**
