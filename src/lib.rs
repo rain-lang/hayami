@@ -7,7 +7,7 @@ pub mod local;
 pub mod snap;
 
 /**
-A trait for a simple, general-use symbol table which can be indexed by a given key.
+A trait for a symbol table which can be indexed by a given key.
 
 Behaves like a stack of `HashMap`s.
 */
@@ -31,13 +31,19 @@ pub trait SymbolTable<K> {
 }
 
 /**
-A trait for a simple, general-use symbol table which can be indexed by a given key in which entries may be infallibly mutated.
-
-Behaves like a stack of `HashMap`s.
+A trait for a symbol table which in which entries may be infallibly mutated.
 */
 pub trait MutSymbolTable<K>: SymbolTable<K> {
     /// Get a mutable reference to the definition of a key in the top level of this symbol table
     pub fn get_mut(&mut self, key: &Q) -> Option<&mut Self::Value> where Q: Borrow<K> {
         self.try_get_mut(key)
     }
+}
+
+/**
+A trait for a stack-like symbol table in which a reference to the previous layer may be obtained
+*/
+pub trait SymbolStack<K>: SymbolTable<K> {
+    /// Get the previous layer of this symbol table
+    pub fn prev(&self) -> Option<&Self>;
 }
