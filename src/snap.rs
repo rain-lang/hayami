@@ -69,7 +69,7 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolMap<K> for SymbolTabl
     #[inline]
     fn get<Q>(&self, key: &Q) -> Option<&Self::Value>
     where
-        Q: Hash + Eq,
+        Q: ?Sized + Hash + Eq,
         K: Borrow<Q>,
     {
         self.symbols.get(key)
@@ -77,7 +77,7 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolMap<K> for SymbolTabl
     #[inline]
     fn try_get_mut<Q>(&mut self, key: &Q) -> Option<&mut Self::Value>
     where
-        Q: Hash + Eq,
+        Q: ?Sized + Hash + Eq,
         K: Borrow<Q>,
     {
         self.symbols.get_mut(key)

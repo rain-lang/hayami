@@ -10,6 +10,7 @@ use im_rc;
 use indexmap::IndexMap;
 use rand::{thread_rng, Rng};
 use std::collections::HashMap;
+use hayami::SymbolMap;
 
 pub mod old;
 use old::SymbolTable as OldSymbolTable;
@@ -60,72 +61,153 @@ pub fn insertion_benchmarks(c: &mut Criterion) {
     std::mem::drop(fxhash_table);
 }
 
-pub fn layer_benchmarks(c: &mut Criterion) {
-    let layer1: Vec<(usize, usize)> = (0..10000).map(|u| (u, 2 * u)).collect();
-    let layer2: Vec<(usize, usize)> = (250..750).map(|u| (u, 3 * u)).collect();
-    let layer3: Vec<(usize, usize)> = (500..7000).map(|u| (u, 2 * u)).collect();
-    let layer2_2: Vec<(usize, usize)> = (100..9000).map(|u| (u, u)).collect();
-    let layer3_2: Vec<(usize, usize)> = (200..3000).map(|u| (u, 7 * u)).collect();
+pub fn exercise_symbol_push_1<S: SymbolMap<usize, Value=usize>>(layers: &Layers, table:&mut S) {
+    for item in layers.layer1.iter() {
+        table.insert(item.0, item.1);
+    }
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    table.push();
+    for item in layers.layer2.iter() {
+        table.insert(item.0, item.1);
+    }
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    table.push();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    for item in layers.layer3.iter() {
+        table.insert(item.0, item.1);
+    }
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+}
 
+pub fn exercise_symbol_pop_1<S: SymbolMap<usize, Value=usize>>(table:&mut S) {
+    table.pop();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    table.pop();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+}
+
+pub fn exercise_symbol_push_2<S: SymbolMap<usize, Value=usize>>(layers: &Layers, table:&mut S) {
+    for item in layers.layer2_2.iter() {
+        table.insert(item.0, item.1);
+    }
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    table.push();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    for item in layers.layer3_2.iter() {
+        table.insert(item.0, item.1);
+    }
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+}
+
+pub fn exercise_symbol_pop_2<S: SymbolMap<usize, Value=usize>>(table:&mut S) {
+    table.pop();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+    table.pop();
+    for i in 0..20000 {
+        black_box(table.get(&i));
+    }
+}
+
+pub fn exercise_symbol_table<S: SymbolMap<usize, Value=usize>>(layers: &Layers, table: &mut S) {
+    exercise_symbol_push_1(layers, table);
+    exercise_symbol_pop_1(table);
+    exercise_symbol_push_2(layers, table);
+    exercise_symbol_pop_2(table);
+}
+
+pub fn exercise_clone_symbol_table<S: SymbolMap<usize, Value=usize> + Clone>(layers: &Layers, table: &mut S) {
+    exercise_symbol_push_1(layers, table);
+    let mut table_2 = table.clone();
+    exercise_symbol_push_2(layers, &mut table_2);
+    let mut table_3 = table_2.clone();
+    exercise_symbol_push_1(layers, &mut table_2);
+    exercise_symbol_pop_1(table);
+    exercise_symbol_push_2(layers, &mut table_3);
+    let mut table_4 = table_2.clone();
+    exercise_symbol_pop_1(&mut table_2);
+    exercise_symbol_pop_2(table);
+    exercise_symbol_push_2(layers, &mut table_4);
+    exercise_symbol_pop_2(&mut table_4);
+    exercise_symbol_push_1(layers, &mut table_4);
+}
+
+pub struct Layers {
+    layer1: Vec<(usize, usize)>,
+    layer2: Vec<(usize, usize)>,
+    layer3: Vec<(usize, usize)>,
+    layer2_2: Vec<(usize, usize)>,
+    layer3_2: Vec<(usize, usize)>,
+}
+
+pub fn layer_benchmarks(c: &mut Criterion) {
+    let layer1 = (0..10000).map(|u| (u, 2 * u)).collect();
+    let layer2 = (250..750).map(|u| (u, 3 * u)).collect();
+    let layer3 = (500..7000).map(|u| (u, 2 * u)).collect();
+    let layer2_2 = (100..9000).map(|u| (u, u)).collect();
+    let layer3_2 = (200..3000).map(|u| (u, 7 * u)).collect();
+    let layers = Layers {
+        layer1, layer2, layer3, layer2_2, layer3_2
+    };
+    c.bench_function("Snap SymbolTable: basic usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            exercise_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Local SymbolTable: basic usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            exercise_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
     c.bench_function("Old SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut old_table = OldSymbolTable::<usize, usize>::default();
-            for item in layer1.iter() {
-                old_table.insert(item.0, item.1);
-            }
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.push();
-            for item in layer2.iter() {
-                old_table.insert(item.0, item.1);
-            }
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.push();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            for item in layer3.iter() {
-                old_table.insert(item.0, item.1);
-            }
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.pop();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.pop();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            for item in layer2_2.iter() {
-                old_table.insert(item.0, item.1);
-            }
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.push();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            for item in layer3_2.iter() {
-                old_table.insert(item.0, item.1);
-            }
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.pop();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            old_table.pop();
-            for i in 0..20000 {
-                black_box(old_table.get(&i));
-            }
-            std::mem::drop(old_table)
+            let mut table = OldSymbolTable::<usize, usize>::default();
+            exercise_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Snap SymbolTable: clone usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Local SymbolTable: clone usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Old SymbolTable: clone usage test", |b| {
+        b.iter(|| {
+            let mut table = OldSymbolTable::<usize, usize>::default();
+            exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
         })
     });
 }

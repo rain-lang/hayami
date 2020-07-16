@@ -36,14 +36,14 @@ pub trait SymbolMap<K> {
     /// Get the most recent definition of a key in this symbol table
     fn get<Q>(&self, key: &Q) -> Option<&Self::Value>
     where
-        Q: Hash + Eq,
+        Q: ?Sized + Hash + Eq,
         K: Borrow<Q>;
     /// Try to get a mutable reference to the definition of a key in the top level of this symbol table
     ///
     /// May fail for arbitrary reasons, to avoid, e.g., re-inserting the key at the top level as mutable.
     fn try_get_mut<Q>(&mut self, key: &Q) -> Option<&mut Self::Value>
     where
-        Q: Hash + Eq,
+        Q: ?Sized + Hash + Eq,
         K: Borrow<Q>;
     /// Push a level onto this symbol table
     fn push(&mut self);
@@ -63,7 +63,7 @@ pub trait MutSymbolMap<K>: SymbolMap<K> {
     #[inline(always)]
     fn get_mut<Q>(&mut self, key: &Q) -> Option<&mut Self::Value>
     where
-        Q: Hash + Eq,
+        Q: ?Sized + Hash + Eq,
         K: Borrow<Q>,
     {
         self.try_get_mut(key)
