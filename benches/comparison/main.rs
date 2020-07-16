@@ -8,9 +8,11 @@ use std::collections::HashMap;
 use ahash::RandomState;
 use fxhash::FxHashMap;
 use indexmap::IndexMap;
-use hayami::SymbolTable;
 use im;
 use im_rc;
+
+pub mod old;
+use old::SymbolTable as OldSymbolTable;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = thread_rng();
@@ -32,8 +34,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
     std::mem::drop(im_rc_table);
-    let mut table = SymbolTable::new();
-    c.bench_function("SymbolTable: level 0 insertion", |b| {
+    let mut table = OldSymbolTable::new();
+    c.bench_function("Old SymbolTable: level 0 insertion", |b| {
         let key = rng.gen::<usize>();
         let value = rng.gen::<usize>();
         b.iter(|| {
