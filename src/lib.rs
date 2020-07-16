@@ -30,12 +30,10 @@ impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V,
     }
 }
 
-impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S>
-where
-    IndexMap<K, Vec<(V, usize)>, S>: Default,
+impl<K: Hash + Eq, V> SymbolTable<K, V>
 {
     /// Create a new, empty symbol table
-    pub fn new() -> SymbolTable<K, V, S> {
+    pub fn new() -> SymbolTable<K, V> {
         Self::default()
     }
 }
