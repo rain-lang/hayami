@@ -3,6 +3,7 @@ A symbol table implementation supporting snapshots, i.e. an `O(1)` clone operati
 */
 use super::*;
 use im::HashMap;
+use std::fmt::{self, Formatter, Debug};
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
@@ -24,6 +25,24 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
             depth: 0,
             prev: None,
         }
+    }
+}
+
+impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    #[inline]
+    pub fn new() -> SymbolTable<K, V> {
+        Self::default()
+    }
+}
+
+impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V, S> {
+    #[inline]
+    fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+        fmt.debug_struct("SymbolTable")
+            .field("symbols", &self.symbols)
+            .field("depth", &self.depth)
+            .field("prev", &self.prev)
+            .finish()
     }
 }
 

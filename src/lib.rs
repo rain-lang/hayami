@@ -4,7 +4,7 @@ Simple, general-use symbol table implementations with optional support for more 
 use std::borrow::Borrow;
 use std::hash::{BuildHasher, Hash};
 
-//pub mod fast;
+pub mod fast;
 pub mod local;
 pub mod snap;
 

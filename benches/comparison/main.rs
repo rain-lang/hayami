@@ -180,6 +180,13 @@ pub fn layer_benchmarks(c: &mut Criterion) {
     let layers = Layers {
         layer1, layer2, layer3, layer2_2, layer3_2
     };
+    c.bench_function("Fast SymbolTable: basic usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            exercise_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
     c.bench_function("Snap SymbolTable: basic usage test", |b| {
         b.iter(|| {
             let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
@@ -201,6 +208,13 @@ pub fn layer_benchmarks(c: &mut Criterion) {
             std::mem::drop(table)
         })
     });
+    c.bench_function("Fast SymbolTable: clone usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
     c.bench_function("Snap SymbolTable: clone usage test", |b| {
         b.iter(|| {
             let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
@@ -219,6 +233,13 @@ pub fn layer_benchmarks(c: &mut Criterion) {
         b.iter(|| {
             let mut table = OldSymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&layers, &mut table);
+            std::mem::drop(table)
+        })
+    });
+    c.bench_function("Fast SymbolTable: clone loop usage test", |b| {
+        b.iter(|| {
+            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            exercise_loop_symbol_table(&layers, &mut table);
             std::mem::drop(table)
         })
     });
