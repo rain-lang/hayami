@@ -8,6 +8,9 @@ pub mod fast;
 pub mod local;
 pub mod snap;
 
+#[cfg(test)]
+mod testing;
+
 /// The default random state in use
 ///
 /// Supports `ahash` (default), or `std`
@@ -38,6 +41,17 @@ pub trait SymbolMap<K> {
     where
         Q: ?Sized + Hash + Eq,
         K: Borrow<Q>;
+    /// Whether this symbol table contains this key
+    #[inline]
+    fn contains_key<Q>(&self, key: &Q) -> bool
+    where
+        Q: ?Sized + Hash + Eq,
+        K: Borrow<Q>,
+    {
+        self.get(key).is_some()
+    }
+    /// Whether this symbol table is empty
+    fn is_empty(&self) -> bool;
     /// Try to get a mutable reference to the definition of a key in the top level of this symbol table
     ///
     /// May fail for arbitrary reasons, to avoid, e.g., re-inserting the key at the top level as mutable.

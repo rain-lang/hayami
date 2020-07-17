@@ -98,6 +98,18 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolMap<K> for SymbolTabl
         self.symbols.get(key)
     }
     #[inline]
+    fn contains_key<Q>(&self, key: &Q) -> bool
+    where
+        Q: ?Sized + Hash + Eq,
+        K: Borrow<Q>,
+    {
+        self.symbols.contains_key(key)
+    }
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.symbols.is_empty()
+    }
+    #[inline]
     fn try_get_mut<Q>(&mut self, key: &Q) -> Option<&mut Self::Value>
     where
         Q: ?Sized + Hash + Eq,
@@ -128,5 +140,15 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolStack<K> for SymbolTa
     #[inline]
     fn prev(&self) -> Option<&Self> {
         self.prev.as_deref()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::testing;
+    #[test]
+    fn basic_symbol_table_test() {
+        testing::basic_symbol_table_test(SymbolTable::new())
     }
 }

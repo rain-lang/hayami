@@ -11,6 +11,7 @@ pub struct SymbolTable<K: Hash + Eq, V, S: BuildHasher = RandomState> {
     symbols: IndexMap<K, Vec<V>, S>,
     depth: usize,
     insertion_ix: usize,
+    defined: usize,
     insertions: Vec<isize>,
 }
 
@@ -21,6 +22,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
             symbols: IndexMap::default(),
             depth: 0,
             insertion_ix: 0,
+            defined: 0,
             insertions: Vec::new(),
         }
     }
@@ -59,6 +61,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
                 self.insertions.push(ix as isize)
             }
         }
+        self.defined += 1;
     }
     #[inline]
     fn get<Q>(&self, key: &Q) -> Option<&Self::Value>
@@ -70,13 +73,16 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
         vec.last()
     }
     #[inline]
-    fn try_get_mut<Q>(&mut self, key: &Q) -> Option<&mut Self::Value>
+    fn try_get_mut<Q>(&mut self, _key: &Q) -> Option<&mut Self::Value>
     where
         Q: ?Sized + Hash + Eq,
         K: Borrow<Q>,
     {
-        let vec = self.symbols.get_mut(key)?;
-        vec.last_mut()
+        None
+    }
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.defined == 0
     }
     #[inline]
     fn push(&mut self) {
@@ -92,6 +98,8 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
         self.depth -= 1;
         while let Some(mut insertion) = self.insertions.pop() {
             if insertion < 0 {
+                let undefined = (-insertion as usize) - 1;
+                self.defined -= undefined;
                 while insertion < -1 {
                     insertion += 1;
                     self.symbols.pop();
@@ -99,6 +107,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
             }
             if let Some((_, entry)) = self.symbols.get_index_mut(insertion as usize) {
                 entry.pop();
+                self.defined -= 1;
             }
         }
         for (i, insertion) in self.insertions.iter().enumerate().rev() {
@@ -111,5 +120,15 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
     #[inline]
     fn depth(&self) -> usize {
         self.depth
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::testing;
+    #[test]
+    fn basic_symbol_table_test() {
+        testing::basic_symbol_table_test(SymbolTable::new())
     }
 }

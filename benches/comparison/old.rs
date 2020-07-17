@@ -106,6 +106,10 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
     fn pop(&mut self) {
         self.jump(self.depth().saturating_sub(1))
     }
+    #[inline]
+    fn is_empty(&self) -> bool {
+        self.symbols.is_empty()
+    }
 }
 
 impl<K: Hash + Eq, V, S: BuildHasher> MutSymbolMap<K> for SymbolTable<K, V, S> {}
@@ -196,10 +200,6 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
     #[inline]
     pub fn popn(&mut self, n: usize) {
         self.jump(self.depth().saturating_sub(n))
-    }
-    /// Check whether a symbol table is empty
-    pub fn is_empty(&self) -> bool {
-        self.symbols.is_empty()
     }
     /// Reserve space for at least `additional` symbols in this symbol table
     pub fn reserve(&mut self, additional: usize) {
