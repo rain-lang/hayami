@@ -53,9 +53,11 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
         let len = self.symbols.len();
         let entry = self.symbols.entry(key);
         let ix = entry.index();
-        entry.or_default().push(value);
+        let entry = entry.or_default();
+        let entry_len = entry.len();
+        entry.push(value);
         if self.depth != 0 {
-            if ix == len {
+            if ix == len && entry_len == 0  {
                 self.insertions[self.insertion_ix] -= 1;
             } else {
                 self.insertions.push(ix as isize)
@@ -104,7 +106,8 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
                     insertion += 1;
                     self.symbols.pop();
                 }
-            }
+                return;
+            } 
             if let Some((_, entry)) = self.symbols.get_index_mut(insertion as usize) {
                 entry.pop();
                 self.defined -= 1;
@@ -130,5 +133,20 @@ mod tests {
     #[test]
     fn basic_symbol_table_test() {
         testing::basic_symbol_table_test(SymbolTable::new())
+    }
+    #[test]
+    fn inserting_back_twice_works() {
+        let mut table = SymbolTable::<usize, usize>::new();
+        table.insert(5, 3);
+        table.push();
+        table.insert(5, 4);
+        table.push();
+        table.insert(5, 5);
+        assert_eq!(table.get(&5), Some(&5));
+        table.pop();
+        assert_eq!(table.get(&5), Some(&4));
+        table.pop();
+        assert_eq!(table.get(&5), Some(&3));
+        table.pop();
     }
 }
