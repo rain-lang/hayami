@@ -2,28 +2,36 @@
 Simple, general-use symbol table implementations with optional support for more advanced features
 */
 use std::borrow::Borrow;
-use std::hash::{BuildHasher, Hash};
+use std::hash::Hash;
 
+#[cfg(feature = "fast")]
 pub mod fast;
+#[cfg(feature = "local")]
 pub mod local;
+#[cfg(feature = "snap")]
 pub mod snap;
 
 #[cfg(test)]
 mod testing;
 
 /// The default random state in use
-///
-/// Supports `ahash` (default), or `std`
+#[allow(unused)]
 type RandomState = ahash::RandomState;
 
 /// The `Arc` in use
 ///
-/// Supports `elysees` (default), `triomphe`, or `std`
+/// Supports `elysees` (default) or `std`
+#[cfg(feature = "elysees")]
+#[allow(unused)]
 type Arc<T> = elysees::Arc<T>;
+#[cfg(not(feature = "elysees"))]
+#[allow(unused)]
+type Arc<T> = std::sync::Arc<T>;
 
 /// The `Rc` in use
 ///
 /// Supports `std` only as of now
+#[allow(unused)]
 type Rc<T> = std::rc::Rc<T>;
 
 /**

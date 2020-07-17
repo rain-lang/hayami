@@ -4,6 +4,7 @@ A symbol table implementation optimized for speed.
 use super::*;
 use indexmap::IndexMap;
 use std::fmt::{self, Debug, Formatter};
+use std::hash::BuildHasher;
 
 /// A symbol table implementation optimized for speed
 #[derive(Clone)]
@@ -57,7 +58,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
         let entry_len = entry.len();
         entry.push(value);
         if self.depth != 0 {
-            if ix == len && entry_len == 0  {
+            if ix == len && entry_len == 0 {
                 self.insertions[self.insertion_ix] -= 1;
             } else {
                 self.insertions.push(ix as isize)
@@ -107,7 +108,7 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
                     self.symbols.pop();
                 }
                 return;
-            } 
+            }
             if let Some((_, entry)) = self.symbols.get_index_mut(insertion as usize) {
                 entry.pop();
                 self.defined -= 1;

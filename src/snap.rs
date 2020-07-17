@@ -4,6 +4,7 @@ A symbol table implementation supporting snapshots, i.e. an `O(1)` clone operati
 use super::*;
 use im::HashMap;
 use std::fmt::{self, Debug, Formatter};
+use std::hash::BuildHasher;
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.

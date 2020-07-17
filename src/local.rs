@@ -6,6 +6,7 @@ Faster than the implementation in `snap`, at the cost of not implementing `Send`
 use super::*;
 use im_rc::HashMap;
 use std::fmt::{self, Debug, Formatter};
+use std::hash::BuildHasher;
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
