@@ -1,6 +1,6 @@
-# 0.2
+# 0.2.0
 
-- Changed `SymbolTable::new()` less ambiguous: it is now only defined for `S = ahash::RandomState`. Use `SymbolTable::default()` for other hashers.
+- Now provides a generic `SymbolMap<K>` trait with three feature-enabled implementors: `fast` (for speed), `im` (for multithreaded O(1) cloning), and `im-rc` (for single-threaded O(1) cloning).
 
 # 0.1.1
 
