@@ -4,7 +4,7 @@ A symbol table implementation supporting snapshots, i.e. an `O(1)` clone operati
 use super::*;
 use im::HashMap;
 use std::fmt::{self, Debug, Formatter};
-use std::hash::BuildHasher;
+use std::hash::{Hasher, BuildHasher};
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
@@ -30,9 +30,46 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
 }
 
 impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    /// Create a new, empty symbol table
     #[inline]
     pub fn new() -> SymbolTable<K, V> {
         Self::default()
+    }
+}
+
+impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
+    /// Get a reference to the table's BuildHasher
+    #[inline]
+    pub fn hasher(&self) -> &std::sync::Arc<S> {
+        self.symbols.hasher()
+    }
+    /// Construct an empty hash map using the provided hasher.
+    #[inline]
+    pub fn with_hasher<RS>(hasher: RS) -> SymbolTable<K, V, S>  where std::sync::Arc<S>: From<RS> {
+        SymbolTable {
+            symbols: HashMap::with_hasher(hasher),
+            depth: 0,
+            prev: None,
+        }
+    }
+}
+
+impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for SymbolTable<K, V, S> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        //TODO: think about comparing previous tables...
+        self.depth == other.depth && self.symbols == other.symbols && self.prev == other.prev
+    }
+}
+
+impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for SymbolTable<K, V, S> {}
+
+impl<K: Hash + Eq, V: Hash, S: BuildHasher> Hash for SymbolTable<K, V, S> {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        //TODO: think about hashing previous tables...
+        self.symbols.hash(hasher);
+        self.depth.hash(hasher);
+        self.prev.hash(hasher);
     }
 }
 
