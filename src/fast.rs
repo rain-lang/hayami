@@ -4,7 +4,7 @@ A symbol table implementation optimized for speed.
 use super::*;
 use indexmap::IndexMap;
 use std::fmt::{self, Debug, Formatter};
-use std::hash::BuildHasher;
+use std::hash::{BuildHasher};
 
 /// A symbol table implementation optimized for speed
 #[derive(Clone)]
@@ -29,12 +29,60 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
     }
 }
 
+impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
+    #[inline]
+    pub fn with_hasher(hash_builder: S) -> SymbolTable<K, V, S> {
+        SymbolTable {
+            symbols: IndexMap::with_hasher(hash_builder),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
+    #[inline]
+    pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> SymbolTable<K, V, S> {
+        SymbolTable {
+            symbols: IndexMap::with_capacity_and_hasher(capacity, hash_builder),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
+}
+
+
 impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    #[inline]
+    pub fn with_capacity(n: usize) -> SymbolTable<K, V> {
+        SymbolTable {
+            symbols: IndexMap::with_capacity_and_hasher(n, RandomState::default()),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
     #[inline]
     pub fn new() -> SymbolTable<K, V> {
         Self::default()
     }
 }
+
+impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for SymbolTable<K, V, S> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.depth == other.depth 
+        && self.insertion_ix == other.insertion_ix 
+        && self.defined == other.defined 
+        && self.insertions == other.insertions 
+        && self.symbols == other.symbols
+    }
+}
+
+impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for SymbolTable<K, V, S> {}
+
 
 impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V, S> {
     #[inline]
