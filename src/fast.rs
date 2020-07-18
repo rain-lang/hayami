@@ -29,7 +29,41 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
     }
 }
 
+impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
+    #[inline]
+    pub fn with_hasher(hash_builder: S) -> SymbolTable<K, V, S> {
+        SymbolTable {
+            symbols: IndexMap::with_hasher(hash_builder),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
+    #[inline]
+    pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> SymbolTable<K, V, S> {
+        SymbolTable {
+            symbols: IndexMap::with_capacity_and_hasher(capacity, hash_builder),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
+}
+
+
 impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    #[inline]
+    pub fn with_capacity(n: usize) -> SymbolTable<K, V> {
+        SymbolTable {
+            symbols: IndexMap::with_capacity_and_hasher(n, RandomState::default()),
+            depth: 0,
+            insertion_ix: 0,
+            defined: 0,
+            insertions: Vec::new(),
+        }
+    }
     #[inline]
     pub fn new() -> SymbolTable<K, V> {
         Self::default()
