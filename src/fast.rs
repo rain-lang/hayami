@@ -4,7 +4,7 @@ A symbol table implementation optimized for speed.
 use super::*;
 use indexmap::IndexMap;
 use std::fmt::{self, Debug, Formatter};
-use std::hash::BuildHasher;
+use std::hash::{BuildHasher};
 
 /// A symbol table implementation optimized for speed
 #[derive(Clone)]
@@ -35,6 +35,20 @@ impl<K: Hash + Eq, V> SymbolTable<K, V> {
         Self::default()
     }
 }
+
+impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for SymbolTable<K, V, S> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.depth == other.depth 
+        && self.insertion_ix == other.insertion_ix 
+        && self.defined == other.defined 
+        && self.insertions == other.insertions 
+        && self.symbols == other.symbols
+    }
+}
+
+impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for SymbolTable<K, V, S> {}
+
 
 impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V, S> {
     #[inline]
