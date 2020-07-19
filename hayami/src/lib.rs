@@ -8,8 +8,6 @@ use std::hash::Hash;
 pub mod fast;
 #[cfg(feature = "local")]
 pub mod local;
-#[cfg(feature = "snap")]
-pub mod snap;
 
 pub use symbolmap_trait::*;
 
