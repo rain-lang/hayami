@@ -1,3 +1,7 @@
+# 0.3.1
+
+- Removed unnecessary dependencies and features
+
 # 0.3.0
 
 - Split into the `hayami` (this crate), `hayami-im`, `hayami-im-rc`, and `symbolmap-trait` crates.
