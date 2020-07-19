@@ -10,7 +10,10 @@ edition = "2018"
 ahash = "^0.3"
 im = "^15"
 elysees = { version = "^0.2", optional = true }
-symbolmap-trait = "0.1"
+symbolmap-trait = "^0.1.1"
+
+[dev-dependencies]
+symbolmap-trait = { version = "^0.1.1", features = [ "testing" ] }
 
 [features]
 default = [ "elysees" ]

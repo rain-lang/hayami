@@ -194,13 +194,12 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolStack<K> for SymbolTa
     }
 }
 
-/*
 #[cfg(test)]
 mod tests {
     use super::*;
+    use symbolmap_trait::testing;
     #[test]
     fn basic_symbol_table_test() {
-        testing::basic_symbol_table_test(SymbolTable::new())
+        testing::basic_symbol_table_test(&mut SymbolTable::new())
     }
 }
-*/
