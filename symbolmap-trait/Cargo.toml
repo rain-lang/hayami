@@ -2,6 +2,11 @@
 name = "symbolmap-trait"
 version = "0.1.0"
 authors = ["Jad Ghalayini <jad.ghalayini@hotmail.com>"]
+license = "MIT/Apache-2.0"
 edition = "2018"
+repository = "https://gitlab.com/rain-lang/hayami"
+description = "A trait for generic implementation of symbol tables"
+keywords = ["data-structure"]
+categories = ["data-structures"]
 
 [dependencies]
