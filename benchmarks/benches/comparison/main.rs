@@ -128,21 +128,21 @@ pub fn exercise_clone_symbol_table<S: SymbolMap<usize, Value = usize> + Clone>(t
 pub fn layer_benchmarks(c: &mut Criterion) {
     c.bench_function("Fast SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            let mut table = hayami::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
     c.bench_function("Snap SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
     c.bench_function("Local SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im_rc::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
@@ -156,21 +156,21 @@ pub fn layer_benchmarks(c: &mut Criterion) {
     });
     c.bench_function("Fast SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            let mut table = hayami::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
     c.bench_function("Snap SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
     c.bench_function("Local SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im_rc::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })

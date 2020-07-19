@@ -3,7 +3,7 @@ The old `hayami` implementation (from 0.1.1)
 */
 
 use ahash::RandomState;
-use hayami::{MutSymbolMap, SymbolMap};
+use symbolmap_trait::{MutSymbolMap, SymbolMap};
 use indexmap::{Equivalent, IndexMap};
 use std::borrow::Borrow;
 use std::default::Default;

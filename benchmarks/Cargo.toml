@@ -17,7 +17,9 @@ pretty_assertions = "^0.6"
 rand = "^0.7"
 criterion = "^0.3"
 fxhash = "^0.2"
-hayami = "^0.2.1"
+hayami = "^0.3"
+hayami-im = "^0.1"
+hayami-im-rc = "^0.1"
 
 [[bench]]
 name = "comparison"
