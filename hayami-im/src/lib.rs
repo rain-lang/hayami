@@ -1,7 +1,10 @@
 /*!
 A generic symbol table implementation supporting `O(1)` `clone`, `push`, and `pop` operations which can be shared between threads.
+
 For a faster implementation which is limited to a single thread only, see the `hayami-im-rc` crate.
 */
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
+
 use ahash::RandomState;
 use im::HashMap;
 use std::borrow::Borrow;

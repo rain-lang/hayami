@@ -1,8 +1,10 @@
 /*!
-A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
+A generic symbol table implementation supporting `O(1)` `clone`, `push`, and `pop` operations which cannot be shared between threads.
 
-Faster than the implementation in `snap`, at the cost of not implementing `Send` + `Sync`.
+For an implementation which implements `Send` + `Sync` at the cost of a performance penalty, see `hayami-im`.
 */
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
+
 use ahash::RandomState;
 use im_rc::HashMap;
 use std::borrow::Borrow;

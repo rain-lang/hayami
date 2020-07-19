@@ -1,6 +1,8 @@
 /*!
 A simple, general-use symbol table optimized for speed at the cost of some advanced features.
 */
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
+
 use ahash::RandomState;
 use indexmap::IndexMap;
 use std::borrow::Borrow;
@@ -34,6 +36,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
 }
 
 impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
+    /// Create a new symbol table with the given `BuildHasher`
     #[inline]
     pub fn with_hasher(hash_builder: S) -> SymbolTable<K, V, S> {
         SymbolTable {
@@ -44,6 +47,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
             insertions: Vec::new(),
         }
     }
+    /// Create a new symbol table having the given capacity with the given `BuildHasher`
     #[inline]
     pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> SymbolTable<K, V, S> {
         SymbolTable {
@@ -57,6 +61,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
 }
 
 impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    /// Create a new symbol table having the given capacity
     #[inline]
     pub fn with_capacity(n: usize) -> SymbolTable<K, V> {
         SymbolTable {
@@ -67,6 +72,7 @@ impl<K: Hash + Eq, V> SymbolTable<K, V> {
             insertions: Vec::new(),
         }
     }
+    /// Create a new, empty symbol table
     #[inline]
     pub fn new() -> SymbolTable<K, V> {
         Self::default()
