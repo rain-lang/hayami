@@ -2,6 +2,7 @@
 A trait for generic implementation of symbol tables. Used by the [`hayami`](https://gitlab.com/rain-lang/hayami) family
 of symbol table crates, which were developed for use in the [`rain` programming language](https://gitlab.com/rain-lang).
 */
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
 
 use std::borrow::Borrow;
 use std::hash::Hash;
