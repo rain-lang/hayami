@@ -8,7 +8,8 @@ use std::borrow::Borrow;
 use std::fmt::{self, Debug, Formatter};
 use std::hash::Hash;
 use std::hash::{BuildHasher, Hasher};
-use symbolmap_trait::{MutSymbolMap, SymbolMap, SymbolStack};
+
+pub use symbolmap_trait::{MutSymbolMap, SymbolMap, SymbolStack};
 
 /// The `Arc` in use
 ///

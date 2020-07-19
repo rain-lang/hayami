@@ -10,7 +10,8 @@ use std::fmt::{self, Debug, Formatter};
 use std::hash::Hash;
 use std::hash::{BuildHasher, Hasher};
 use std::rc::Rc;
-use symbolmap_trait::{MutSymbolMap, SymbolMap, SymbolStack};
+
+pub use symbolmap_trait::{MutSymbolMap, SymbolMap, SymbolStack};
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
