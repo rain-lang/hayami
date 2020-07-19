@@ -3,6 +3,7 @@ Compare `SymbolTable` performance to other `HashMap`s
 */
 
 use ahash::RandomState;
+use benchmarks::old::SymbolTable as OldSymbolTable;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use fxhash::FxHashMap;
 use hayami::SymbolMap;
@@ -14,11 +15,36 @@ use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::hash::Hash;
 
-pub mod old;
-use old::SymbolTable as OldSymbolTable;
-
 pub fn insertion_benchmarks(c: &mut Criterion) {
     let mut rng = thread_rng();
+    let mut table = hayami_im::SymbolTable::<usize, usize>::new();
+    c.bench_function("hayami::SymbolTable: level 0 insertion", |b| {
+        let key = rng.gen::<usize>();
+        let value = rng.gen::<usize>();
+        b.iter(|| table.insert(key, value))
+    });
+    std::mem::drop(table);
+    let mut table = hayami_im::SymbolTable::<usize, usize>::new();
+    c.bench_function("hayami_im::SymbolTable: level 0 insertion", |b| {
+        let key = rng.gen::<usize>();
+        let value = rng.gen::<usize>();
+        b.iter(|| table.insert(key, value))
+    });
+    std::mem::drop(table);
+    let mut table = hayami_im_rc::SymbolTable::<usize, usize>::new();
+    c.bench_function("hayami_im_rc::SymbolTable: level 0 insertion", |b| {
+        let key = rng.gen::<usize>();
+        let value = rng.gen::<usize>();
+        b.iter(|| table.insert(key, value))
+    });
+    std::mem::drop(table);
+    let mut table = OldSymbolTable::<usize, usize>::new();
+    c.bench_function("Old SymbolTable: level 0 insertion", |b| {
+        let key = rng.gen::<usize>();
+        let value = rng.gen::<usize>();
+        b.iter(|| table.insert(key, value))
+    });
+    std::mem::drop(table);
     let mut im_table = im::HashMap::<usize, usize, RandomState>::default();
     c.bench_function("im::HashMap: insertion", |b| {
         let key = rng.gen::<usize>();
@@ -33,13 +59,6 @@ pub fn insertion_benchmarks(c: &mut Criterion) {
         b.iter(|| im_rc_table.insert(key, value))
     });
     std::mem::drop(im_rc_table);
-    let mut table = OldSymbolTable::<usize, usize>::new();
-    c.bench_function("Old SymbolTable: level 0 insertion", |b| {
-        let key = rng.gen::<usize>();
-        let value = rng.gen::<usize>();
-        b.iter(|| table.insert(key, value))
-    });
-    std::mem::drop(table);
     let mut index_table = IndexMap::<usize, usize, RandomState>::default();
     c.bench_function("IndexMap: insertion", |b| {
         let key = rng.gen::<usize>();
@@ -128,23 +147,23 @@ pub fn exercise_clone_symbol_table<S: SymbolMap<usize, Value = usize> + Clone>(t
 }
 
 pub fn layer_benchmarks(c: &mut Criterion) {
-    c.bench_function("Fast SymbolTable: basic usage test", |b| {
+    c.bench_function("hayami::SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            let mut table = hayami::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
-    c.bench_function("Snap SymbolTable: basic usage test", |b| {
+    c.bench_function("hayami_im::SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
-    c.bench_function("Local SymbolTable: basic usage test", |b| {
+    c.bench_function("hayami_im_rc::SymbolTable: basic usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im_rc::SymbolTable::<usize, usize>::default();
             exercise_symbol_table(&mut table);
             std::mem::drop(table)
         })
@@ -156,23 +175,23 @@ pub fn layer_benchmarks(c: &mut Criterion) {
             std::mem::drop(table)
         })
     });
-    c.bench_function("Fast SymbolTable: clone usage test", |b| {
+    c.bench_function("hayami::SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::fast::SymbolTable::<usize, usize>::default();
+            let mut table = hayami::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
-    c.bench_function("Snap SymbolTable: clone usage test", |b| {
+    c.bench_function("hayami_im::SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::snap::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })
     });
-    c.bench_function("Local SymbolTable: clone usage test", |b| {
+    c.bench_function("hayami_im_rc::SymbolTable: clone usage test", |b| {
         b.iter(|| {
-            let mut table = hayami::local::SymbolTable::<usize, usize>::default();
+            let mut table = hayami_im_rc::SymbolTable::<usize, usize>::default();
             exercise_clone_symbol_table(&mut table);
             std::mem::drop(table)
         })

@@ -1,38 +1,13 @@
 /*!
-Simple, general-use symbol table implementations with optional support for more advanced features
+A trait for generic implementation of symbol tables. Used by the [`hayami`](https://gitlab.com/rain-lang/hayami) family
+of symbol table crates, which were developed for use in the [`rain` programming language](https://gitlab.com/rain-lang).
 */
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
 use std::borrow::Borrow;
 use std::hash::Hash;
 
-#[cfg(feature = "fast")]
-pub mod fast;
-#[cfg(feature = "local")]
-pub mod local;
-#[cfg(feature = "snap")]
-pub mod snap;
-
-#[cfg(test)]
-mod testing;
-
-/// The default random state in use
-#[allow(unused)]
-type RandomState = ahash::RandomState;
-
-/// The `Arc` in use
-///
-/// Supports `elysees` (default) or `std`
-#[cfg(feature = "elysees")]
-#[allow(unused)]
-type Arc<T> = elysees::Arc<T>;
-#[cfg(not(feature = "elysees"))]
-#[allow(unused)]
-type Arc<T> = std::sync::Arc<T>;
-
-/// The `Rc` in use
-///
-/// Supports `std` only as of now
-#[allow(unused)]
-type Rc<T> = std::rc::Rc<T>;
+#[cfg(feature = "testing")]
+pub mod testing;
 
 /**
 A trait for a symbol table which can be indexed by a given key.

@@ -1,10 +1,16 @@
 /*!
-A symbol table implementation optimized for speed.
+A simple, general-use symbol table optimized for speed at the cost of some advanced features.
 */
-use super::*;
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
+
+use ahash::RandomState;
 use indexmap::IndexMap;
+use std::borrow::Borrow;
 use std::fmt::{self, Debug, Formatter};
-use std::hash::{BuildHasher};
+use std::hash::BuildHasher;
+use std::hash::Hash;
+
+pub use symbolmap_trait::SymbolMap;
 
 /// A symbol table implementation optimized for speed
 #[derive(Clone)]
@@ -30,6 +36,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S>
 }
 
 impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
+    /// Create a new symbol table with the given `BuildHasher`
     #[inline]
     pub fn with_hasher(hash_builder: S) -> SymbolTable<K, V, S> {
         SymbolTable {
@@ -40,6 +47,7 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
             insertions: Vec::new(),
         }
     }
+    /// Create a new symbol table having the given capacity with the given `BuildHasher`
     #[inline]
     pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> SymbolTable<K, V, S> {
         SymbolTable {
@@ -52,8 +60,8 @@ impl<K: Hash + Eq, V, S: BuildHasher + Default> SymbolTable<K, V, S> {
     }
 }
 
-
 impl<K: Hash + Eq, V> SymbolTable<K, V> {
+    /// Create a new symbol table having the given capacity
     #[inline]
     pub fn with_capacity(n: usize) -> SymbolTable<K, V> {
         SymbolTable {
@@ -64,6 +72,7 @@ impl<K: Hash + Eq, V> SymbolTable<K, V> {
             insertions: Vec::new(),
         }
     }
+    /// Create a new, empty symbol table
     #[inline]
     pub fn new() -> SymbolTable<K, V> {
         Self::default()
@@ -73,16 +82,15 @@ impl<K: Hash + Eq, V> SymbolTable<K, V> {
 impl<K: Hash + Eq, V: PartialEq, S: BuildHasher> PartialEq for SymbolTable<K, V, S> {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
-        self.depth == other.depth 
-        && self.insertion_ix == other.insertion_ix 
-        && self.defined == other.defined 
-        && self.insertions == other.insertions 
-        && self.symbols == other.symbols
+        self.depth == other.depth
+            && self.insertion_ix == other.insertion_ix
+            && self.defined == other.defined
+            && self.insertions == other.insertions
+            && self.symbols == other.symbols
     }
 }
 
 impl<K: Hash + Eq, V: Eq, S: BuildHasher> Eq for SymbolTable<K, V, S> {}
-
 
 impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V, S> {
     #[inline]
@@ -178,10 +186,10 @@ impl<K: Hash + Eq, V, S: BuildHasher> SymbolMap<K> for SymbolTable<K, V, S> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testing;
+    use symbolmap_trait::testing;
     #[test]
     fn basic_symbol_table_test() {
-        testing::basic_symbol_table_test(SymbolTable::new())
+        testing::basic_symbol_table_test(&mut SymbolTable::new())
     }
     #[test]
     fn inserting_back_twice_works() {

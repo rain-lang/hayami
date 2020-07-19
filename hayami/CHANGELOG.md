@@ -1,3 +1,7 @@
+# 0.3.0
+
+- Split into the `hayami` (this crate), `hayami-im`, `hayami-im-rc`, and `symbolmap-trait` crates.
+
 # 0.2.1
 
 - Added `with_capacity`, `with_hasher`, `with_capacity_and_hasher` constructors to the `fast` symbol table, and `with_hasher` constructors to the `snap` and `local` symbol tables.

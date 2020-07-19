@@ -1,10 +1,10 @@
 /*!
-Functions for testing `SymbolMap` implementations
+Utility functions for testing `SymbolMap` implementations
 */
 use super::*;
 
-#[allow(unused)]
-pub fn basic_symbol_table_test<S: SymbolMap<&'static str, Value = usize>>(mut symbols: S) {
+/// A basic test of symbol table functionality, starting from an empty symbol table
+pub fn basic_symbol_table_test<S: SymbolMap<&'static str, Value = usize>>(symbols: &mut S) {
     assert!(symbols.is_empty());
     assert!(!symbols.contains_key("x"));
     assert!(!symbols.contains_key("y"));

@@ -1,13 +1,24 @@
 /*!
-A symbol table implementation supporting snapshots, i.e. an `O(1)` clone operation
+A generic symbol table implementation supporting `O(1)` `clone`, `push`, and `pop` operations which cannot be shared between threads.
+
+For an implementation which implements `Send` + `Sync` at the cost of a performance penalty, see `hayami-im`.
 */
-use super::*;
-use im::HashMap;
+#![deny(missing_docs, unsafe_code, missing_debug_implementations)]
+
+use ahash::RandomState;
+use im_rc::HashMap;
+use std::borrow::Borrow;
 use std::fmt::{self, Debug, Formatter};
-use std::hash::{Hasher, BuildHasher};
+use std::hash::Hash;
+use std::hash::{BuildHasher, Hasher};
+use std::rc::Rc;
+
+pub use symbolmap_trait::{MutSymbolMap, SymbolMap, SymbolStack};
 
 /**
 A symbol table implementation supporting snapshots, i.e. an `O(1)` cloning operation.
+
+Faster than the implementation in `snap`, at the cost of not implementing `Send` + `Sync`.
 */
 pub struct SymbolTable<K: Hash + Eq, V, S: BuildHasher = RandomState> {
     /// This layer of the symbol table
@@ -15,7 +26,7 @@ pub struct SymbolTable<K: Hash + Eq, V, S: BuildHasher = RandomState> {
     /// The depth of this symbol table
     depth: usize,
     /// A link to the previous layer's table, forming a singly-linked list
-    prev: Option<Arc<SymbolTable<K, V, S>>>,
+    prev: Option<Rc<SymbolTable<K, V, S>>>,
 }
 
 impl<K: Hash + Eq, V, S: BuildHasher + Default> Default for SymbolTable<K, V, S> {
@@ -40,12 +51,15 @@ impl<K: Hash + Eq, V> SymbolTable<K, V> {
 impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
     /// Get a reference to the table's BuildHasher
     #[inline]
-    pub fn hasher(&self) -> &std::sync::Arc<S> {
+    pub fn hasher(&self) -> &std::rc::Rc<S> {
         self.symbols.hasher()
     }
     /// Construct an empty hash map using the provided hasher.
     #[inline]
-    pub fn with_hasher<RS>(hasher: RS) -> SymbolTable<K, V, S>  where std::sync::Arc<S>: From<RS> {
+    pub fn with_hasher<RS>(hasher: RS) -> SymbolTable<K, V, S>
+    where
+        std::rc::Rc<S>: From<RS>,
+    {
         SymbolTable {
             symbols: HashMap::with_hasher(hasher),
             depth: 0,
@@ -87,7 +101,7 @@ impl<K: Hash + Eq + Debug, V: Debug, S: BuildHasher> Debug for SymbolTable<K, V,
 impl<K: Hash + Eq, V, S: BuildHasher> SymbolTable<K, V, S> {
     /// Get an `Arc` to the previous layer's table, if there is any
     #[inline]
-    pub fn get_prev(&self) -> Option<&Arc<SymbolTable<K, V, S>>> {
+    pub fn get_prev(&self) -> Option<&Rc<SymbolTable<K, V, S>>> {
         self.prev.as_ref()
     }
 }
@@ -112,7 +126,7 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolTable<K, V, S> {
         SymbolTable {
             symbols,
             depth,
-            prev: Some(Arc::new(self)),
+            prev: Some(Rc::new(self)),
         }
     }
 }
@@ -153,13 +167,13 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolMap<K> for SymbolTabl
     }
     #[inline]
     fn push(&mut self) {
-        self.prev = Some(Arc::new((*self).clone()));
+        self.prev = Some(Rc::new(self.clone()));
         self.depth += 1;
     }
     #[inline]
     fn pop(&mut self) {
         if let Some(prev) = self.prev.as_deref() {
-            *self = (*prev).clone();
+            *self = prev.clone();
         }
     }
     #[inline]
@@ -180,9 +194,9 @@ impl<K: Hash + Eq + Clone, V: Clone, S: BuildHasher> SymbolStack<K> for SymbolTa
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::testing;
+    use symbolmap_trait::testing;
     #[test]
     fn basic_symbol_table_test() {
-        testing::basic_symbol_table_test(SymbolTable::new())
+        testing::basic_symbol_table_test(&mut SymbolTable::new())
     }
 }
