@@ -2,9 +2,12 @@
 name = "hayami-im-rc"
 version = "0.1.0"
 authors = ["Jad Ghalayini <jad.ghalayini@hotmail.com>"]
+license = "MIT/Apache-2.0"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://gitlab.com/rain-lang/hayami"
+description = "A simple, general use symbol table."
+keywords = ["data-structure"]
+categories = ["data-structures"]
 
 [dependencies]
 ahash = "^0.3"
