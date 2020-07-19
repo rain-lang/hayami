@@ -1,0 +1,35 @@
+[package]
+name = "hayami"
+version = "0.2.1"
+authors = ["Jad Ghalayini <jad.ghalayini@hotmail.com>"]
+license = "MIT/Apache-2.0"
+edition = "2018"
+repository = "https://gitlab.com/rain-lang/hayami"
+description = "A simple, general use symbol table."
+keywords = ["data-structure"]
+categories = ["data-structures"]
+
+[dependencies]
+ahash = "^0.3"
+im = { version = "^15", optional = true }
+im-rc = { version = "^15", optional = true }
+indexmap = { version = "^1.3.2", optional = true }
+elysees = { version = "^0.2", optional = true }
+
+[dev-dependencies]
+pretty_assertions = "^0.6"
+rand = "^0.7"
+criterion = "^0.3"
+fxhash = "^0.2"
+
+[features]
+default = ["local", "snap", "fast", "elysees-arc"]
+local = [ "im-rc" ]
+snap = [ "im" ]
+fast = [ "indexmap" ]
+elysees-arc = [ "elysees" ]
+
+[[bench]]
+name = "comparison"
+path = "benches/comparison/main.rs"
+harness = false
