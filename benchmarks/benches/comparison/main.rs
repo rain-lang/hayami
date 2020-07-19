@@ -3,6 +3,7 @@ Compare `SymbolTable` performance to other `HashMap`s
 */
 
 use ahash::RandomState;
+use benchmarks::old::SymbolTable as OldSymbolTable;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use fxhash::FxHashMap;
 use hayami::SymbolMap;
@@ -13,9 +14,6 @@ use rand::{thread_rng, Rng};
 use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::hash::Hash;
-
-pub mod old;
-use old::SymbolTable as OldSymbolTable;
 
 pub fn insertion_benchmarks(c: &mut Criterion) {
     let mut rng = thread_rng();

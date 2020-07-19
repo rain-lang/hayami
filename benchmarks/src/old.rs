@@ -1,3 +1,7 @@
+/*!
+The old `hayami` implementation (from 0.1.1)
+*/
+
 use ahash::RandomState;
 use hayami::{MutSymbolMap, SymbolMap};
 use indexmap::{Equivalent, IndexMap};

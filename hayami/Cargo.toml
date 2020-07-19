@@ -29,8 +29,3 @@ local = [ "im-rc" ]
 snap = [ "im" ]
 fast = [ "indexmap" ]
 elysees-arc = [ "elysees" ]
-
-[[bench]]
-name = "comparison"
-path = "benches/comparison/main.rs"
-harness = false

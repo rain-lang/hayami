@@ -5,4 +5,5 @@ members = [
     "hayami-im",
     "hayami-im-rc",
     "symbolmap-trait",
+    "benchmarks",
 ]
