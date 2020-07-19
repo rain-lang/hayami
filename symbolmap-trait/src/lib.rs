@@ -3,9 +3,11 @@ A trait for generic implementation of symbol tables. Used by the [`hayami`](http
 of symbol table crates, which were developed for use in the [`rain` programming language](https://gitlab.com/rain-lang).
 */
 #![deny(missing_docs, unsafe_code, missing_debug_implementations)]
-
 use std::borrow::Borrow;
 use std::hash::Hash;
+
+#[cfg(feature = "testing")]
+pub mod testing;
 
 /**
 A trait for a symbol table which can be indexed by a given key.
