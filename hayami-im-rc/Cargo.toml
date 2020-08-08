@@ -18,3 +18,5 @@ symbolmap-trait = "^0.1.1"
 symbolmap-trait = { version = "^0.1.1", features = [ "testing" ] }
 
 [features]
+default = ["pool"]
+pool = ["im-rc/pool"]
